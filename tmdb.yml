@@ -1,0 +1,69 @@
+
+---
+- name: Checking TMDB movie site with API calls from Ansible
+  hosts: localhost
+  vars:
+   tmdb_api_uri: "https://api.themoviedb.org/3"
+   tmdb_account_id: "{{ lookup('env', 'TMDB_ACCOUNT_ID') }}"
+   tmdb_api_key: "{{ lookup('env', 'TMDB_API_KEY') }}"
+   tmdb_username: "{{ lookup('env', 'TMDB_USERNAME') }}"
+   tmdb_password: "{{ lookup('env', 'TMDB_PASSWORD') }}"
+   sess_id: 200932e81a5f6742a486877a6571751c1236e3bd
+  tasks: 
+   - name: Checking with simple login
+     ansible.builtin.uri:
+      url: "{{ tmdb_api_uri }}/authentication/token/new?api_key={{ tmdb_api_key }}"
+      method: GET
+      timeout: 30
+     register: req_token
+   - name: Output the token
+     debug:
+      var: req_token.json.request_token
+   - name: setting fact for token
+     set_fact:
+      res_token: "{{ req_token.json.request_token }}"
+     when: req_token.status == 200
+   - debug:
+      var: res_token
+   - name: Validate the response token
+     ansible.builtin.uri:
+      url: "{{ tmdb_api_uri }}/authentication/token/validate_with_login?api_key={{ tmdb_api_key }}"
+      method: POST
+      body_format: json
+      body:
+       username: "{{ tmdb_username }}"
+       password: "{{ tmdb_password }}"
+       request_token: "{{ res_token }}"
+     register: token_val
+     tags:
+      - post
+   - name: generating session id
+     ansible.builtin.uri:
+      url: "{{ tmdb_api_uri }}/authentication/session/new?api_key={{ tmdb_api_key }}"
+      method: POST
+      body_format: json
+      body:
+       request_token: "{{ res_token }}"
+     register: session
+   - name: output for token validation
+     debug:
+      var: session
+     tags:
+      - post
+   - name: setting fact for api query
+     set_fact:
+      tmdb_auth_query: "api_key={{ tmdb_api_key }}&session_id={{ sess_id }}"
+     tags:
+      - fav
+   - name: Extracting favorite movies from site
+     ansible.builtin.uri:
+      url: "{{ tmdb_api_uri }}/account/{{ tmdb_account_id }}/favorite/movies?{{ tmdb_auth_query }}"
+      method: GET
+     register: favo
+     tags:
+      - fav
+   - name: output the fav movies
+     debug:
+      var: favo.json.results[*].title
+     tags:
+      - fav     

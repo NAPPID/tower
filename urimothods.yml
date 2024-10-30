@@ -1,0 +1,30 @@
+
+---
+- name: Testing GET method
+  hosts: localhost
+  vars:
+   end_url: "https://reqres.in"
+   key: "/api/users?page=2"
+  tasks:
+   - name: Checking URL response from URI module
+     ansible.builtin.uri:
+      url: "{{ end_url }}{{ key }}"
+     register: gather1
+     tags: 
+      - uri
+   - name: Extract from the portal
+     uri:
+      url: "{{ end_url }}{{ key }}"
+      status_code: 200
+      #body_format: json
+      method: GET
+      timeout: 30
+     register: gather
+   - name: output the response from "{{ end_url }}{{ key }}" 
+     debug:
+      var: gather.json.data[0].id
+   - name: Checking URL response
+     debug: 
+      var: gather1
+     tags: 
+      - uri  

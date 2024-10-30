@@ -1,0 +1,13 @@
+
+---
+- name: Testing lookup functions
+  hosts: localhost
+  vars:
+   present_dir: " {{ lookup('env', 'PWD') }}"
+   user: " {{ lookup('env', 'USER') }}"
+  tasks:
+   - debug:
+      msg: "This is env variable {{ item }}"
+     loop:
+      - "{{ present_dir }}"
+      - "{{ user }}"
