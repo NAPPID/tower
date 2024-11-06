@@ -5,9 +5,53 @@
   vars:
    present_dir: " {{ lookup('env', 'PWD') }}"
    user: " {{ lookup('env', 'USER') }}"
+   fruits: "apple,banana,orange"
   tasks:
    - debug:
       msg: "This is env variable {{ item }}"
      loop:
       - "{{ present_dir }}"
       - "{{ user }}"
+   - debug: 
+      msg: "{{ lookup('env','MYNAME') | default('SaiKiraN',true)}}"
+   - file:
+      name: "{{ item.name}}"
+      state: "{{ item.state}}"
+      mode: "{{item.mode | default(omit)}}"
+     loop: 
+      - name: /tmp/file1
+        state: touch
+        mode: "0566"
+      - name: /tmp/file2
+        state: touch
+      - name: /tmp/file3
+        state: touch
+        mode: "0444"
+     tags: 
+      - file 
+   - user:
+      name: "{{item.name}}"
+      shell: "{{item.shell | default(omit)}}"
+      state: "{{item.state | default('absent')}}"
+     loop:
+      - name: bill
+        shell: /bin/bash
+        password: "Admin@123"
+        state: present
+      - name: Harris
+        shell: /bin/sh
+        password: "Admin@123"
+      - name: Trumph
+        password: "Admin@123"
+        state: present
+     become: true
+     tags: 
+      - user
+   - set_fact:
+      fruit: "{{ fruits.split(',')[0] }}"
+     tags:
+      - sp
+   - debug:
+      msg: "{{ fruit }}"
+     tags:
+      - sp
