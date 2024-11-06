@@ -5,7 +5,7 @@
   vars:
    present_dir: " {{ lookup('env', 'PWD') }}"
    user: " {{ lookup('env', 'USER') }}"
-   fruits: [apple@gmail.com,banana@gmail.com,orange@gmail.com]
+  vars_files: [./testvars.yml]
   tasks:
    - debug:
       msg: "This is env variable {{ item }}"
@@ -18,32 +18,14 @@
       name: "{{ item.name}}"
       state: "{{ item.state}}"
       mode: "{{item.mode | default(omit)}}"
-     loop: 
-      - name: /tmp/file1
-        state: touch
-        mode: "0566"
-      - name: /tmp/file2
-        state: touch
-      - name: /tmp/file3
-        state: touch
-        mode: "0444"
+     loop: "{{ files }}"
      tags: 
       - file 
    - user:
       name: "{{item.name}}"
       shell: "{{item.shell | default(omit)}}"
       state: "{{item.state | default('absent')}}"
-     loop:
-      - name: bill
-        shell: /bin/bash
-        password: "Admin@123"
-        state: present
-      - name: Harris
-        shell: /bin/sh
-        password: "Admin@123"
-      - name: Trumph
-        password: "Admin@123"
-        state: present
+     loop: "{{ users}}"
      become: true
      tags: 
       - user

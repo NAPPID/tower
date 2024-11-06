@@ -1,0 +1,23 @@
+
+fruits: [apple@gmail.com,banana@gmail.com,orange@gmail.com]
+
+files:
+ - name: /tmp/file1
+   state: touch
+   mode: "0566"
+ - name: /tmp/file2
+   state: touch
+ - name: /tmp/file3
+   state: touch
+   mode: "0444"
+users:
+ - name: bill
+   shell: /bin/bash
+   password: "Admin@123"
+   state: present
+ - name: Harris
+   shell: /bin/sh
+   password: "Admin@123"
+ - name: Trumph
+   password: "Admin@123"
+   state: present
