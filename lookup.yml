@@ -5,7 +5,7 @@
   vars:
    present_dir: " {{ lookup('env', 'PWD') }}"
    user: " {{ lookup('env', 'USER') }}"
-   fruits: "apple,banana,orange"
+   fruits: [apple@gmail.com,banana@gmail.com,orange@gmail.com]
   tasks:
    - debug:
       msg: "This is env variable {{ item }}"
@@ -48,7 +48,12 @@
      tags: 
       - user
    - set_fact:
-      fruit: "{{ fruits.split(',')[0] }}"
+      fruit: []
+     tags:
+      - sp
+   - set_fact:
+      fruit: "{{ fruit + [ item.split('@')[0] ] }}"
+     loop: "{{fruits}}"
      tags:
       - sp
    - debug:
